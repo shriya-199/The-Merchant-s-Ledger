@@ -38,6 +38,15 @@ export default function Alerts() {
     return () => client.deactivate();
   }, [socketUrl]);
 
+  const markRead = async (id) => {
+    try {
+      await apiRequest(`/api/notifications/${id}/read`, { method: "POST" });
+      setAlerts((prev) => prev.map((alert) => (alert.id === id ? { ...alert, readAt: new Date().toISOString() } : alert)));
+    } catch (err) {
+      setError(err.message || "Failed to mark read");
+    }
+  };
+
   return (
     <div className="space-y-6">
       <header>
@@ -54,10 +63,23 @@ export default function Alerts() {
       <div className="space-y-3">
         {alerts.map((alert) => (
           <div key={alert.id} className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
-            <p className="text-sm font-semibold text-slate-700">
-              {alert.title}
-            </p>
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-semibold text-slate-700">
+                {alert.title}
+              </p>
+              <span className={`text-xs ${alert.readAt ? "text-slate-400" : "text-amber-600"}`}>
+                {alert.readAt ? "Read" : "New"}
+              </span>
+            </div>
             <p className="text-xs text-slate-500">{alert.message}</p>
+            {!alert.readAt && (
+              <button
+                className="mt-2 text-xs text-blue-600"
+                onClick={() => markRead(alert.id)}
+              >
+                Mark read
+              </button>
+            )}
           </div>
         ))}
       </div>
