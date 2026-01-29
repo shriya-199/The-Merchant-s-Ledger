@@ -1,0 +1,41 @@
+services:
+  - type: web
+    name: merchants-ledger-backend
+    env: docker
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    plan: free
+    autoDeploy: true
+    envVars:
+      - key: DB_URL
+        fromDatabase:
+          name: merchants-ledger-db
+          property: connectionString
+      - key: DB_USERNAME
+        fromDatabase:
+          name: merchants-ledger-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: merchants-ledger-db
+          property: password
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://YOUR-RENDER-FRONTEND.onrender.com
+
+  - type: web
+    name: merchants-ledger-frontend
+    env: docker
+    rootDir: front-end
+    dockerfilePath: ./Dockerfile
+    plan: free
+    autoDeploy: true
+    envVars:
+      - key: VITE_API_BASE_URL
+        value: https://YOUR-RENDER-BACKEND.onrender.com
+
+  - type: postgres
+    name: merchants-ledger-db
+    plan: free
+    ipAllowList: []

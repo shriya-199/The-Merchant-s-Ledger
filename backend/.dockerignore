@@ -1,0 +1,6 @@
+# Backend .dockerignore
+/target
+/.mvn
+/.git
+/.idea
+*.iml
