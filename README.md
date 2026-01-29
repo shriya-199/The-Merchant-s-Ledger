@@ -3,7 +3,7 @@
   <!-- HEADER -->
   <div style="text-align:center; padding-bottom:30px;">
     <h1 style="font-size:42px; color:#0f172a; margin-bottom:10px;">
-      Merchant’s Ledger
+      Merchant's Ledger
     </h1>
     <p style="font-size:18px; color:#475569; max-width:760px; margin:auto;">
       A modern digital ledger system designed to replace traditional notebooks
@@ -22,11 +22,11 @@
 
   <!-- ABOUT -->
   <h2 style="color:#020617; font-size:26px; margin-bottom:12px;">
-    📘 What is Merchant’s Ledger?
+    📘 What is Merchant's Ledger?
   </h2>
 
   <p style="color:#334155; line-height:1.8; font-size:15px;">
-    Merchant’s Ledger is a full-stack business management platform aimed at helping
+    Merchant's Ledger is a full-stack business management platform aimed at helping
     shopkeepers, merchants, and small businesses track transactions, customers,
     credits, and balances digitally.
     The system focuses on reliability, clean data handling, and long-term scalability,
@@ -88,7 +88,23 @@
 
   <!-- FOOTER -->
   <div style="margin-top:40px; text-align:center; font-size:13px; color:#64748b;">
-    Merchant’s Ledger — Building real software, not just repositories.
+    Merchant's Ledger — Building real software, not just repositories.
   </div>
 
 </div>
+
+<hr/>
+
+<h2 style="color:#020617; font-size:26px; margin-top:34px;">
+  Running Locally
+</h2>
+
+<ol style="color:#334155; line-height:1.8; font-size:15px;">
+  <li>Start PostgreSQL and create a database named <b>merchant_ledger</b>.</li>
+  <li>Backend: open <code>backend</code> and run <code>mvn spring-boot:run</code>.</li>
+  <li>Frontend: open <code>front-end</code> and run <code>npm run dev</code>.</li>
+</ol>
+
+<p style="color:#334155; font-size:15px;">
+  Default admin login: <b>admin@ledger.com</b> / <b>Admin123!</b>
+</p>

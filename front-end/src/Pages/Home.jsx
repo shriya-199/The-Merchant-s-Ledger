@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import {
   ArrowRight,
   Boxes,
@@ -14,20 +15,23 @@ import {
 /* ===================== HOME ===================== */
 
 export default function Home() {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-200 via-slate-300 to-slate-500 text-white">
 
       {/* ================= NAVBAR ================= */}
       <nav className="top-0 z-50 flex justify-between items-center px-10 py-6 ">
         <h1 className="font-bold tracking-wide text-blue-950 text-3xl">
-          The Merchant’s Ledger
+          The Merchant's Ledger
         </h1>
 
         <div className="space-x-6 text-sm text-blue-950">
           <a href="#features" className="hover:text-blue-600">Features</a>
           <a href="#analytics" className="hover:text-blue-600">Analytics</a>
           <a href="#security" className="hover:text-blue-600">Security</a>
-          <button className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+          <button onClick={()=>navigate("/login")}
+          className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
             Login
           </button>
         </div>
@@ -61,12 +65,13 @@ export default function Home() {
           transition={{ delay: 0.6 }}
           className="mt-10 flex gap-4"
         >
-          <a
-            href="#"
+          <button
+            type="button"
+            onClick={() => navigate("/signup")}
             className="flex items-center gap-2 px-7 py-3 bg-blue-600 rounded-lg hover:bg-blue-700 transition"
           >
             Get Started <ArrowRight size={18} />
-          </a>
+          </button>
           <a
             href="#analytics"
             className="px-7 py-3 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition"
@@ -221,7 +226,7 @@ export default function Home() {
 
       {/* ================= FOOTER ================= */}
       <footer className="mt-40 py-10 text-center text-slate-600 text-sm">
-        © 2026 The Merchant’s Ledger. Built for modern enterprises.
+        (c) 2026 The Merchant's Ledger. Built for modern enterprises.
       </footer>
     </div>
   );
@@ -252,7 +257,6 @@ export function FeatureItem({ icon: Icon, title, description,delay=0 }) {
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      delay={delay}
       transition={{ delay, duration: 0.4, ease: "easeOut" }}
       
       whileHover={{ y: -6 }}
