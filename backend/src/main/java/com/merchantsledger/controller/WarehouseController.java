@@ -6,6 +6,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import com.merchantsledger.dto.WarehouseRequest;
+import com.merchantsledger.dto.WarehouseLocationRequest;
+import com.merchantsledger.dto.WarehouseLocationResponse;
 import com.merchantsledger.dto.WarehouseResponse;
 import com.merchantsledger.entity.User;
 import com.merchantsledger.service.WarehouseService;
@@ -39,5 +41,17 @@ public class WarehouseController {
   @DeleteMapping("/{id}")
   public void delete(@AuthenticationPrincipal User user, @PathVariable Long id) {
     warehouseService.delete(user, id);
+  }
+
+  @GetMapping("/{id}/locations")
+  public List<WarehouseLocationResponse> listLocations(@AuthenticationPrincipal User user, @PathVariable Long id) {
+    return warehouseService.listLocations(user, id);
+  }
+
+  @PostMapping("/{id}/locations")
+  public WarehouseLocationResponse createLocation(@AuthenticationPrincipal User user,
+                                                  @PathVariable Long id,
+                                                  @Valid @RequestBody WarehouseLocationRequest request) {
+    return warehouseService.createLocation(user, id, request);
   }
 }

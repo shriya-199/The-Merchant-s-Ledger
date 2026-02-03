@@ -24,5 +24,10 @@ app:
   jwt:
     secret: ${JWT_SECRET:change-me-please-change}
     expirationMinutes: ${JWT_EXP_MIN:120}
+  google:
+    clientId: ${GOOGLE_CLIENT_ID:278392388483-jeodllm1r6rvv7lgl7a8joo1brlklce8.apps.googleusercontent.com}
+  otp:
+    expiryMinutes: ${OTP_EXPIRY_MINUTES:5}
+    exposeCodes: ${OTP_EXPOSE_CODES:true}
   cors:
     allowedOrigins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:3000}

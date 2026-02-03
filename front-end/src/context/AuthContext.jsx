@@ -45,10 +45,14 @@ export function AuthProvider({ children }) {
     setUser(authResponse.user);
   };
 
-  const login = async (email, password) => {
+  const login = async (emailOrPayload, password) => {
+    const payload =
+      typeof emailOrPayload === "object" && emailOrPayload !== null
+        ? emailOrPayload
+        : { email: emailOrPayload, password };
     const authResponse = await apiRequest("/api/auth/login", {
       method: "POST",
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify(payload),
     });
     applyAuth(authResponse);
     return authResponse;
@@ -63,6 +67,49 @@ export function AuthProvider({ children }) {
     return authResponse;
   };
 
+  const loginWithGoogle = async (credential) => {
+    const authResponse = await apiRequest("/api/auth/google", {
+      method: "POST",
+      body: JSON.stringify({ credential }),
+    });
+    applyAuth(authResponse);
+    return authResponse;
+  };
+
+  const completeProfile = async (payload) => {
+    const updatedUser = await apiRequest("/api/users/me/complete-profile", {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    });
+    setUser(updatedUser);
+    return updatedUser;
+  };
+
+  const sendSignupOtp = async ({ email, phone }) => {
+    return apiRequest("/api/auth/otp/send", {
+      method: "POST",
+      body: JSON.stringify({
+        email,
+        phone,
+        purpose: "REGISTER",
+      }),
+    });
+  };
+
+  const sendLoginOtp = async ({ email, password }) => {
+    return apiRequest("/api/auth/login/send-otp", {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
+    });
+  };
+
+  const requiresProfileCompletion = (candidateUser) => {
+    if (!candidateUser) {
+      return false;
+    }
+    return candidateUser.profileCompleted === false;
+  };
+
   const logout = () => {
     localStorage.removeItem("token");
     setToken(null);
@@ -70,7 +117,20 @@ export function AuthProvider({ children }) {
   };
 
   const value = useMemo(
-    () => ({ user, token, loading, login, register, logout, refreshUser }),
+    () => ({
+      user,
+      token,
+      loading,
+      login,
+      register,
+      loginWithGoogle,
+      sendSignupOtp,
+      sendLoginOtp,
+      completeProfile,
+      requiresProfileCompletion,
+      logout,
+      refreshUser,
+    }),
     [user, token, loading]
   );
 

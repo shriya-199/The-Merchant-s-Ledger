@@ -25,7 +25,17 @@ export async function apiRequest(path, options = {}) {
     return null;
   }
 
-  return response.json();
+  const contentType = response.headers.get("content-type") || "";
+  if (!contentType.includes("application/json")) {
+    return null;
+  }
+
+  const raw = await response.text();
+  if (!raw) {
+    return null;
+  }
+
+  return JSON.parse(raw);
 }
 
 export { API_BASE };

@@ -5,6 +5,9 @@ import org.springframework.web.bind.annotation.*;
 
 import com.merchantsledger.dto.AuthRequest;
 import com.merchantsledger.dto.AuthResponse;
+import com.merchantsledger.dto.GoogleAuthRequest;
+import com.merchantsledger.dto.OtpChallengeResponse;
+import com.merchantsledger.dto.OtpSendRequest;
 import com.merchantsledger.dto.RegisterRequest;
 import com.merchantsledger.dto.UserResponse;
 import com.merchantsledger.entity.User;
@@ -29,9 +32,24 @@ public class AuthController {
     return authService.register(request);
   }
 
+  @PostMapping("/otp/send")
+  public OtpChallengeResponse sendOtp(@Valid @RequestBody OtpSendRequest request) {
+    return authService.sendOtp(request.getEmail(), request.getPhone(), request.getPurpose());
+  }
+
+  @PostMapping("/login/send-otp")
+  public OtpChallengeResponse sendLoginOtp(@Valid @RequestBody AuthRequest request) {
+    return authService.sendLoginOtp(request);
+  }
+
   @PostMapping("/login")
   public AuthResponse login(@Valid @RequestBody AuthRequest request) {
     return authService.login(request);
+  }
+
+  @PostMapping("/google")
+  public AuthResponse google(@Valid @RequestBody GoogleAuthRequest request) {
+    return authService.googleAuth(request.getCredential());
   }
 
   @GetMapping("/me")

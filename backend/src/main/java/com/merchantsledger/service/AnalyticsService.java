@@ -30,8 +30,12 @@ public class AnalyticsService {
   public AnalyticsResponse build(User user) {
     String tenantKey = TenantResolver.resolveTenantKey(user);
     long total = stockMovementRepository.countByTenantKey(tenantKey);
-    long inbound = stockMovementRepository.countByTenantKeyAndType(tenantKey, MovementType.INBOUND);
-    long outbound = stockMovementRepository.countByTenantKeyAndType(tenantKey, MovementType.OUTBOUND);
+    long inbound = stockMovementRepository.countByTenantKeyAndTypeIn(
+        tenantKey,
+        List.of(MovementType.RECEIVE, MovementType.RETURN, MovementType.RELEASE, MovementType.INBOUND));
+    long outbound = stockMovementRepository.countByTenantKeyAndTypeIn(
+        tenantKey,
+        List.of(MovementType.SHIP, MovementType.RESERVE, MovementType.DAMAGE, MovementType.OUTBOUND));
     long transfer = stockMovementRepository.countByTenantKeyAndType(tenantKey, MovementType.TRANSFER);
 
     long lowStock = stockItemRepository.findByTenantKey(tenantKey).stream()

@@ -47,13 +47,17 @@ public class ExportController {
   public ResponseEntity<byte[]> movementsCsv(@AuthenticationPrincipal User user) {
     List<StockMovementResponse> movements = inventoryService.listMovements(user);
     StringBuilder builder = new StringBuilder();
-    builder.append("Type,Product,From,To,Quantity,Note\n");
+    builder.append("Type,Product,FromWarehouse,ToWarehouse,Quantity,TransactionId,ReferenceType,ReferenceId,ReasonCode,Note\n");
     for (StockMovementResponse move : movements) {
       builder.append(move.getType()).append(',')
           .append(move.getProductName()).append(',')
           .append(move.getFromWarehouseName() == null ? "" : move.getFromWarehouseName()).append(',')
           .append(move.getToWarehouseName() == null ? "" : move.getToWarehouseName()).append(',')
           .append(move.getQuantity()).append(',')
+          .append(move.getTransactionId() == null ? "" : move.getTransactionId()).append(',')
+          .append(move.getReferenceType() == null ? "" : move.getReferenceType()).append(',')
+          .append(move.getReferenceId() == null ? "" : move.getReferenceId()).append(',')
+          .append(move.getReasonCode() == null ? "" : move.getReasonCode()).append(',')
           .append(move.getReferenceNote() == null ? "" : move.getReferenceNote())
           .append('\n');
     }

@@ -34,6 +34,8 @@ public class User implements UserDetails {
   private String roleTitle;
   @Column(nullable = false)
   private boolean enabled = true;
+  @Column(nullable = false)
+  private boolean profileCompleted = true;
 
   @Column(nullable = false, updatable = false)
   private Instant createdAt;
@@ -117,6 +119,14 @@ public class User implements UserDetails {
 
   public void setEnabledFlag(boolean enabled) {
     this.enabled = enabled;
+  }
+
+  public boolean isProfileCompleted() {
+    return profileCompleted;
+  }
+
+  public void setProfileCompleted(boolean profileCompleted) {
+    this.profileCompleted = profileCompleted;
   }
 
   public Instant getCreatedAt() {

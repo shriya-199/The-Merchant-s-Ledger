@@ -22,6 +22,12 @@ public class RestExceptionHandler {
         .body(new ApiError(ex.getMessage(), request.getRequestURI(), HttpStatus.BAD_REQUEST.value()));
   }
 
+  @ExceptionHandler(ForbiddenException.class)
+  public ResponseEntity<ApiError> handleForbidden(ForbiddenException ex, HttpServletRequest request) {
+    return ResponseEntity.status(HttpStatus.FORBIDDEN)
+        .body(new ApiError(ex.getMessage(), request.getRequestURI(), HttpStatus.FORBIDDEN.value()));
+  }
+
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<ApiError> handleValidation(MethodArgumentNotValidException ex, HttpServletRequest request) {
     String message = ex.getBindingResult().getFieldErrors().stream()

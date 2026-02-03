@@ -19,6 +19,14 @@ public class RegisterRequest {
   private String address;
   private String roleTitle;
   private String roleName;
+  @NotBlank
+  private String emailOtpChallengeId;
+  @NotBlank
+  private String emailOtpCode;
+  @NotBlank
+  private String phoneOtpChallengeId;
+  @NotBlank
+  private String phoneOtpCode;
 
   public String getFullName() {
     return fullName;
@@ -82,5 +90,37 @@ public class RegisterRequest {
 
   public void setRoleName(String roleName) {
     this.roleName = roleName;
+  }
+
+  public String getEmailOtpChallengeId() {
+    return emailOtpChallengeId;
+  }
+
+  public void setEmailOtpChallengeId(String emailOtpChallengeId) {
+    this.emailOtpChallengeId = emailOtpChallengeId;
+  }
+
+  public String getEmailOtpCode() {
+    return emailOtpCode;
+  }
+
+  public void setEmailOtpCode(String emailOtpCode) {
+    this.emailOtpCode = emailOtpCode;
+  }
+
+  public String getPhoneOtpChallengeId() {
+    return phoneOtpChallengeId;
+  }
+
+  public void setPhoneOtpChallengeId(String phoneOtpChallengeId) {
+    this.phoneOtpChallengeId = phoneOtpChallengeId;
+  }
+
+  public String getPhoneOtpCode() {
+    return phoneOtpCode;
+  }
+
+  public void setPhoneOtpCode(String phoneOtpCode) {
+    this.phoneOtpCode = phoneOtpCode;
   }
 }

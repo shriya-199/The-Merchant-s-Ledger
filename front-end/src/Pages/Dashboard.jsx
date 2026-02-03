@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { apiRequest } from "../lib/api";
 
+function isCreditType(type) {
+  return type?.includes("CREDIT") || type === "COD_SETTLEMENT" || type === "CHARGEBACK_RELEASE";
+}
+
 export default function Dashboard() {
   const [summary, setSummary] = useState(null);
   const [entries, setEntries] = useState([]);
@@ -51,7 +55,7 @@ export default function Dashboard() {
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-lg font-semibold">Recent ledger activity</h3>
-            <p className="text-sm text-slate-500">Latest 20 entries across all customers.</p>
+            <p className="text-sm text-slate-500">Latest ledger entries across all customers.</p>
           </div>
         </div>
         <div className="mt-4 overflow-x-auto">
@@ -72,7 +76,7 @@ export default function Dashboard() {
                   <td className="py-3">
                     <span
                       className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                        entry.type === "CREDIT"
+                        isCreditType(entry.type)
                           ? "bg-emerald-100 text-emerald-700"
                           : "bg-amber-100 text-amber-700"
                       }`}

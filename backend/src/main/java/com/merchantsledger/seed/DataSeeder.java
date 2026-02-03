@@ -1,10 +1,13 @@
 package com.merchantsledger.seed;
 
+import java.util.Arrays;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.merchantsledger.entity.Role;
 import com.merchantsledger.entity.RoleName;
@@ -17,28 +20,41 @@ public class DataSeeder implements CommandLineRunner {
   private final RoleRepository roleRepository;
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
+  private final JdbcTemplate jdbcTemplate;
 
   public DataSeeder(RoleRepository roleRepository,
                     UserRepository userRepository,
-                    PasswordEncoder passwordEncoder) {
+                    PasswordEncoder passwordEncoder,
+                    JdbcTemplate jdbcTemplate) {
     this.roleRepository = roleRepository;
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
+    this.jdbcTemplate = jdbcTemplate;
   }
 
   @Override
   public void run(String... args) {
+    syncRoleCheckConstraint();
     seedRoles();
     seedAdmin();
   }
 
+  private void syncRoleCheckConstraint() {
+    String allowedRoles = Arrays.stream(RoleName.values())
+        .map(RoleName::name)
+        .map(role -> "'" + role + "'")
+        .collect(Collectors.joining(","));
+
+    jdbcTemplate.execute("ALTER TABLE roles DROP CONSTRAINT IF EXISTS roles_name_check");
+    jdbcTemplate.execute("ALTER TABLE roles ADD CONSTRAINT roles_name_check CHECK (name IN (" + allowedRoles + "))");
+  }
+
   private void seedRoles() {
-    if (roleRepository.count() == 0) {
-      roleRepository.save(new Role(RoleName.ADMIN));
-      roleRepository.save(new Role(RoleName.USER));
-      roleRepository.save(new Role(RoleName.MANAGER));
-      roleRepository.save(new Role(RoleName.STAFF));
-    }
+    Arrays.stream(RoleName.values()).forEach(roleName -> {
+      if (roleRepository.findByName(roleName).isEmpty()) {
+        roleRepository.save(new Role(roleName));
+      }
+    });
   }
 
   private void seedAdmin() {

@@ -1,8 +1,19 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { loadGoogleScript, renderGoogleButton } from "../lib/googleIdentity";
 
 export default function Signup() {
+  const roleOptions = [
+    { value: "MERCHANT_OPERATIONS", label: "Merchant Operations" },
+    { value: "MERCHANT_FINANCE", label: "Merchant Finance" },
+    { value: "MERCHANT_VIEWER", label: "Merchant Viewer" },
+    { value: "PICKER_PACKER", label: "Picker/Packer" },
+    { value: "RECEIVER_GRN_OPERATOR", label: "Receiver / GRN Operator" },
+    { value: "STAFF", label: "Legacy Staff" },
+    { value: "MANAGER", label: "Legacy Manager" },
+  ];
+
   const [form, setForm] = useState({
     fullName: "",
     email: "",
@@ -12,12 +23,17 @@ export default function Signup() {
     address: "",
     companyName: "",
     roleTitle: "",
-    roleName: "STAFF",
+    roleName: "MERCHANT_OPERATIONS",
   });
+  const [emailOtp, setEmailOtp] = useState("");
+  const [phoneOtp, setPhoneOtp] = useState("");
+  const [otpMeta, setOtpMeta] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const googleButtonRef = useRef(null);
   const navigate = useNavigate();
-  const { register } = useAuth();
+  const { register, loginWithGoogle, requiresProfileCompletion, sendSignupOtp } = useAuth();
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -35,6 +51,9 @@ export default function Signup() {
 
     setLoading(true);
     try {
+      if (!otpMeta) {
+        throw new Error("Please send OTP first");
+      }
       await register({
         fullName: form.fullName,
         email: form.email,
@@ -44,6 +63,10 @@ export default function Signup() {
         companyName: form.companyName,
         roleTitle: form.roleTitle,
         roleName: form.roleName,
+        emailOtpChallengeId: otpMeta.emailChallengeId,
+        emailOtpCode: emailOtp,
+        phoneOtpChallengeId: otpMeta.phoneChallengeId,
+        phoneOtpCode: phoneOtp,
       });
       navigate("/dashboard");
     } catch (err) {
@@ -52,6 +75,50 @@ export default function Signup() {
       setLoading(false);
     }
   };
+
+  const handleSendOtp = async () => {
+    setError("");
+    if (!form.email || !form.phone) {
+      setError("Enter email and phone first");
+      return;
+    }
+    setLoading(true);
+    try {
+      const response = await sendSignupOtp({ email: form.email, phone: form.phone });
+      setOtpMeta(response);
+    } catch (err) {
+      setError(err.message || "Failed to send OTP");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!googleClientId || !googleButtonRef.current) {
+      return;
+    }
+
+    loadGoogleScript()
+      .then(() =>
+        renderGoogleButton({
+          clientId: googleClientId,
+          container: googleButtonRef.current,
+          onCredential: async (credential) => {
+            setError("");
+            setLoading(true);
+            try {
+              const result = await loginWithGoogle(credential);
+              navigate(requiresProfileCompletion(result.user) ? "/complete-profile" : "/dashboard");
+            } catch (err) {
+              setError(err.message || "Google signup failed");
+            } finally {
+              setLoading(false);
+            }
+          },
+        })
+      )
+      .catch((err) => setError(err.message || "Google Sign-Up unavailable"));
+  }, [googleClientId, loginWithGoogle, navigate, requiresProfileCompletion]);
 
   return (
     <div className="min-h-screen w-full grid grid-cols-1 md:grid-cols-2">
@@ -83,6 +150,38 @@ export default function Signup() {
             <Field label="Address" name="address" value={form.address} onChange={handleChange} />
             <Field label="Company" name="companyName" value={form.companyName} onChange={handleChange} />
             <Field label="Role title" name="roleTitle" value={form.roleTitle} onChange={handleChange} />
+            <button
+              type="button"
+              onClick={handleSendOtp}
+              className="w-full rounded-md border border-blue-200 bg-blue-50 py-2.5 text-sm font-medium text-blue-700 hover:bg-blue-100 transition"
+              disabled={loading}
+            >
+              Send OTP (Email + Mobile)
+            </button>
+
+            {otpMeta && (
+              <>
+                <Field
+                  label="Email OTP"
+                  name="emailOtp"
+                  value={emailOtp}
+                  onChange={(e) => setEmailOtp(e.target.value)}
+                  required
+                />
+                <Field
+                  label="Mobile OTP"
+                  name="phoneOtp"
+                  value={phoneOtp}
+                  onChange={(e) => setPhoneOtp(e.target.value)}
+                  required
+                />
+                {(otpMeta.emailDevCode || otpMeta.phoneDevCode) && (
+                  <p className="text-xs text-slate-500">
+                    Dev OTPs - Email: {otpMeta.emailDevCode || "-"}, Mobile: {otpMeta.phoneDevCode || "-"}
+                  </p>
+                )}
+              </>
+            )}
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Role</label>
@@ -93,8 +192,11 @@ export default function Signup() {
                 className="w-full px-3 py-2.5 rounded-md border border-slate-300
                            focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="STAFF">Staff</option>
-                <option value="MANAGER">Manager</option>
+                {roleOptions.map((role) => (
+                  <option key={role.value} value={role.value}>
+                    {role.label}
+                  </option>
+                ))}
               </select>
               <p className="mt-1 text-xs text-slate-500">
                 Admin accounts can only be created by existing admins.
@@ -112,6 +214,13 @@ export default function Signup() {
 
             {error && <p className="text-sm text-rose-600">{error}</p>}
           </form>
+
+          <div className="mt-5 space-y-2">
+            {!googleClientId && (
+              <p className="text-xs text-amber-600">Set `VITE_GOOGLE_CLIENT_ID` to enable Google signup.</p>
+            )}
+            <div ref={googleButtonRef} className="flex justify-center" />
+          </div>
 
           <p className="text-sm text-slate-600 mt-6 text-center">
             Already have an account?{" "}

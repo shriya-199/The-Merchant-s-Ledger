@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+ï»¿import { useEffect, useState } from "react";
 import { apiRequest } from "../lib/api";
 
 export default function ManagerDashboard() {
@@ -52,10 +52,10 @@ export default function ManagerDashboard() {
             {movements.slice(0, 8).map((movement) => (
               <div key={movement.id} className="rounded-lg border border-slate-100 p-3">
                 <p className="text-sm font-semibold text-slate-700">
-                  {movement.type} · {movement.productName}
+                  {movement.type} Â· {movement.productName}
                 </p>
                 <p className="text-xs text-slate-500">
-                  {movement.fromWarehouseName || "-"} -> {movement.toWarehouseName || "-"} · {movement.quantity} units
+                  {movement.fromWarehouseName || "-"} {"->"} {movement.toWarehouseName || "-"} {"Â·"} {movement.quantity} units
                 </p>
               </div>
             ))}
@@ -71,10 +71,10 @@ export default function ManagerDashboard() {
             {lowStock.map((item) => (
               <div key={`${item.warehouseId}-${item.productId}`} className="rounded-lg border border-amber-100 bg-amber-50 p-3">
                 <p className="text-sm font-semibold text-amber-700">
-                  {item.productName} · {item.sku}
+                  {item.productName} Â· {item.sku}
                 </p>
                 <p className="text-xs text-amber-700/80">
-                  {item.warehouseName} · {item.quantity} / reorder {item.reorderLevel}
+                  {item.warehouseName} Â· {item.quantity} / reorder {item.reorderLevel}
                 </p>
               </div>
             ))}
@@ -93,3 +93,4 @@ function SummaryCard({ label, value }) {
     </div>
   );
 }
+

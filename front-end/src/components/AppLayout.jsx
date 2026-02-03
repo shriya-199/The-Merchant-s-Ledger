@@ -1,10 +1,32 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { canManageUsers, canRunReconciliation, canViewFinance, getDashboardPath, hasAnyRole } from "../lib/roles";
 
 export default function AppLayout() {
   const { user, logout } = useAuth();
   const roles = user?.roles || [];
-  const hasRole = (role) => roles.includes(role);
+  const canEditInventory = hasAnyRole(roles, [
+    "SYSTEM_ADMIN",
+    "MERCHANT_ADMIN",
+    "MERCHANT_OPERATIONS",
+    "WAREHOUSE_MANAGER",
+    "INVENTORY_AUDITOR",
+    "PICKER_PACKER",
+    "RECEIVER_GRN_OPERATOR",
+    "ADMIN",
+    "MANAGER",
+    "STAFF",
+  ]);
+  const canReadReports = hasAnyRole(roles, [
+    "SYSTEM_ADMIN",
+    "MERCHANT_ADMIN",
+    "MERCHANT_OPERATIONS",
+    "WAREHOUSE_MANAGER",
+    "INVENTORY_AUDITOR",
+    "MERCHANT_FINANCE",
+    "ADMIN",
+    "MANAGER",
+  ]);
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
@@ -29,7 +51,7 @@ export default function AppLayout() {
       <div className="mx-auto w-full max-w-6xl px-6">
         <nav className="flex flex-wrap gap-3 py-6 text-sm text-slate-600">
           <NavLink
-            to={roles.includes("ADMIN") ? "/inventory" : roles.includes("MANAGER") ? "/manager" : "/staff"}
+            to={getDashboardPath(roles)}
             className={({ isActive }) =>
               isActive
                 ? "rounded-full bg-slate-900 px-4 py-2 text-white"
@@ -48,7 +70,7 @@ export default function AppLayout() {
           >
             Inventory
           </NavLink>
-          {(hasRole("ADMIN") || hasRole("MANAGER")) && (
+          {canEditInventory && (
             <NavLink
               to="/movements"
               className={({ isActive }) =>
@@ -60,7 +82,7 @@ export default function AppLayout() {
               Movements
             </NavLink>
           )}
-          {(hasRole("ADMIN") || hasRole("MANAGER")) && (
+          {canReadReports && (
             <NavLink
               to="/reports"
               className={({ isActive }) =>
@@ -70,6 +92,18 @@ export default function AppLayout() {
               }
             >
               Reports
+            </NavLink>
+          )}
+          {canViewFinance(roles) && (
+            <NavLink
+              to="/ledger"
+              className={({ isActive }) =>
+                isActive
+                  ? "rounded-full bg-slate-900 px-4 py-2 text-white"
+                  : "rounded-full border border-slate-200 px-4 py-2 hover:bg-white"
+              }
+            >
+              Finance Ledger
             </NavLink>
           )}
           <NavLink
@@ -82,7 +116,7 @@ export default function AppLayout() {
           >
             Alerts
           </NavLink>
-          {(hasRole("ADMIN") || hasRole("MANAGER")) && (
+          {canEditInventory && (
             <NavLink
               to="/products"
               className={({ isActive }) =>
@@ -94,7 +128,7 @@ export default function AppLayout() {
               Products
             </NavLink>
           )}
-          {hasRole("ADMIN") && (
+          {hasAnyRole(roles, ["SYSTEM_ADMIN", "MERCHANT_ADMIN", "ADMIN"]) && (
             <NavLink
               to="/warehouses"
               className={({ isActive }) =>
@@ -106,7 +140,7 @@ export default function AppLayout() {
               Warehouses
             </NavLink>
           )}
-          {hasRole("ADMIN") && (
+          {canManageUsers(roles) && (
             <NavLink
               to="/admin/users"
               className={({ isActive }) =>
@@ -118,7 +152,19 @@ export default function AppLayout() {
               Users
             </NavLink>
           )}
-          {(hasRole("ADMIN") || hasRole("MANAGER")) && (
+          {canRunReconciliation(roles) && (
+            <NavLink
+              to="/reconciliation"
+              className={({ isActive }) =>
+                isActive
+                  ? "rounded-full bg-slate-900 px-4 py-2 text-white"
+                  : "rounded-full border border-slate-200 px-4 py-2 hover:bg-white"
+              }
+            >
+              Reconciliation
+            </NavLink>
+          )}
+          {(hasAnyRole(roles, ["SYSTEM_ADMIN", "MERCHANT_ADMIN", "WAREHOUSE_MANAGER", "INVENTORY_AUDITOR", "ADMIN", "MANAGER"])) && (
             <NavLink
               to="/audit"
               className={({ isActive }) =>

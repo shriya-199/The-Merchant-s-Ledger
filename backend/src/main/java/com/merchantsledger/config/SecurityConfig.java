@@ -33,22 +33,42 @@ public class SecurityConfig {
         .csrf(csrf -> csrf.disable())
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/api/auth/**", "/ws/**").permitAll()
-            .requestMatchers("/api/admin/**").hasRole("ADMIN")
-            .requestMatchers("/api/audit/**").hasAnyRole("ADMIN", "MANAGER")
-            .requestMatchers("/api/analytics/**", "/api/exports/**").hasAnyRole("ADMIN", "MANAGER")
-            .requestMatchers("/api/notifications/**").hasAnyRole("ADMIN", "MANAGER", "STAFF", "USER")
-            .requestMatchers(HttpMethod.GET, "/api/warehouses/**", "/api/products/**",
-                "/api/inventory/**", "/api/customers/**", "/api/ledger/**")
-                .hasAnyRole("ADMIN", "MANAGER", "STAFF", "USER")
-            .requestMatchers(HttpMethod.POST, "/api/warehouses/**", "/api/products/**",
-                "/api/customers/**", "/api/ledger/**").hasAnyRole("ADMIN", "MANAGER")
-            .requestMatchers(HttpMethod.POST, "/api/inventory/**").hasAnyRole("ADMIN", "MANAGER")
-            .requestMatchers(HttpMethod.POST, "/api/warehouses/**", "/api/products/**").hasRole("ADMIN")
+            .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+            .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/google",
+                "/api/auth/otp/send", "/api/auth/login/send-otp", "/ws/**").permitAll()
+            .requestMatchers("/api/admin/**").hasAnyRole("SYSTEM_ADMIN", "MERCHANT_ADMIN", "ADMIN")
+            .requestMatchers("/api/audit/**").hasAnyRole(
+                "SYSTEM_ADMIN", "MERCHANT_ADMIN", "WAREHOUSE_MANAGER", "INVENTORY_AUDITOR", "ADMIN", "MANAGER")
+            .requestMatchers("/api/analytics/**", "/api/exports/**").hasAnyRole(
+                "SYSTEM_ADMIN", "MERCHANT_ADMIN", "MERCHANT_OPERATIONS", "WAREHOUSE_MANAGER", "ADMIN", "MANAGER")
+            .requestMatchers("/api/notifications/**").hasAnyRole(
+                "SYSTEM_ADMIN", "MERCHANT_ADMIN", "MERCHANT_FINANCE", "MERCHANT_OPERATIONS", "MERCHANT_VIEWER",
+                "WAREHOUSE_MANAGER", "INVENTORY_AUDITOR", "PICKER_PACKER", "RECEIVER_GRN_OPERATOR",
+                "ADMIN", "MANAGER", "STAFF", "USER")
+            .requestMatchers(HttpMethod.GET, "/api/warehouses/**", "/api/products/**", "/api/inventory/**",
+                "/api/customers/**", "/api/ledger/**", "/api/reconciliation/**")
+                .hasAnyRole(
+                    "SYSTEM_ADMIN", "SUPPORT_AGENT", "MERCHANT_ADMIN", "MERCHANT_FINANCE", "MERCHANT_OPERATIONS",
+                    "MERCHANT_VIEWER", "WAREHOUSE_MANAGER", "INVENTORY_AUDITOR", "PICKER_PACKER",
+                    "RECEIVER_GRN_OPERATOR", "ADMIN", "MANAGER", "STAFF", "USER")
+            .requestMatchers(HttpMethod.POST, "/api/ledger/**").hasAnyRole(
+                "SYSTEM_ADMIN", "MERCHANT_ADMIN", "MERCHANT_FINANCE", "ADMIN", "MANAGER")
+            .requestMatchers(HttpMethod.POST, "/api/inventory/**").hasAnyRole(
+                "SYSTEM_ADMIN", "MERCHANT_ADMIN", "MERCHANT_OPERATIONS", "WAREHOUSE_MANAGER", "INVENTORY_AUDITOR",
+                "PICKER_PACKER", "RECEIVER_GRN_OPERATOR", "ADMIN", "MANAGER", "STAFF")
+            .requestMatchers(HttpMethod.POST, "/api/reconciliation/**").hasAnyRole(
+                "SYSTEM_ADMIN", "MERCHANT_ADMIN", "WAREHOUSE_MANAGER", "INVENTORY_AUDITOR", "ADMIN", "MANAGER")
+            .requestMatchers(HttpMethod.POST, "/api/warehouses/**", "/api/products/**", "/api/customers/**").hasAnyRole(
+                "SYSTEM_ADMIN", "MERCHANT_ADMIN", "ADMIN")
+            .requestMatchers(HttpMethod.PUT, "/api/users/me", "/api/users/me/**").hasAnyRole(
+                "SYSTEM_ADMIN", "SUPPORT_AGENT", "MERCHANT_ADMIN", "MERCHANT_FINANCE", "MERCHANT_OPERATIONS",
+                "MERCHANT_VIEWER", "WAREHOUSE_MANAGER", "INVENTORY_AUDITOR", "PICKER_PACKER",
+                "RECEIVER_GRN_OPERATOR", "ADMIN", "MANAGER", "STAFF", "USER")
             .requestMatchers(HttpMethod.PUT, "/api/warehouses/**", "/api/products/**",
-                "/api/customers/**", "/api/users/**").hasAnyRole("ADMIN", "MANAGER")
-            .requestMatchers(HttpMethod.DELETE, "/api/warehouses/**", "/api/products/**",
-                "/api/customers/**").hasRole("ADMIN")
+                "/api/customers/**", "/api/users/**").hasAnyRole(
+                    "SYSTEM_ADMIN", "MERCHANT_ADMIN", "MERCHANT_OPERATIONS", "WAREHOUSE_MANAGER", "ADMIN", "MANAGER")
+            .requestMatchers(HttpMethod.DELETE, "/api/warehouses/**", "/api/products/**", "/api/customers/**")
+                .hasAnyRole("SYSTEM_ADMIN", "MERCHANT_ADMIN", "ADMIN")
             .anyRequest().authenticated()
         )
         .authenticationProvider(authenticationProvider())

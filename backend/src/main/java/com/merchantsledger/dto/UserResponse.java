@@ -12,9 +12,10 @@ public class UserResponse {
   private String address;
   private String roleTitle;
   private boolean enabled;
+  private boolean profileCompleted;
 
   public UserResponse(Long id, String fullName, String email, Set<String> roles, String companyName,
-                      String phone, String address, String roleTitle, boolean enabled) {
+                      String phone, String address, String roleTitle, boolean enabled, boolean profileCompleted) {
     this.id = id;
     this.fullName = fullName;
     this.email = email;
@@ -24,6 +25,7 @@ public class UserResponse {
     this.address = address;
     this.roleTitle = roleTitle;
     this.enabled = enabled;
+    this.profileCompleted = profileCompleted;
   }
 
   public Long getId() {
@@ -60,5 +62,9 @@ public class UserResponse {
 
   public boolean isEnabled() {
     return enabled;
+  }
+
+  public boolean isProfileCompleted() {
+    return profileCompleted;
   }
 }

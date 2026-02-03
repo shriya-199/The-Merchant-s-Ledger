@@ -1,7 +1,23 @@
 import { useEffect, useState } from "react";
 import { apiRequest } from "../lib/api";
 
-const roles = ["STAFF", "MANAGER", "ADMIN"];
+const roles = [
+  "SYSTEM_ADMIN",
+  "SUPPORT_AGENT",
+  "AUTOMATION_BOT",
+  "MERCHANT_ADMIN",
+  "MERCHANT_FINANCE",
+  "MERCHANT_OPERATIONS",
+  "MERCHANT_VIEWER",
+  "WAREHOUSE_MANAGER",
+  "INVENTORY_AUDITOR",
+  "PICKER_PACKER",
+  "RECEIVER_GRN_OPERATOR",
+  "ADMIN",
+  "MANAGER",
+  "STAFF",
+  "USER",
+];
 
 export default function AdminUsers() {
   const [users, setUsers] = useState([]);
@@ -68,7 +84,7 @@ export default function AdminUsers() {
                 <td className="py-3">
                   <select
                     className="rounded-md border border-slate-200 px-2 py-1"
-                    value={user.roles?.[0] || "STAFF"}
+                    value={(user.roles && user.roles.length > 0 ? user.roles[0] : "MERCHANT_OPERATIONS")}
                     onChange={(event) => updateUser(user.id, { roleName: event.target.value })}
                   >
                     {roles.map((role) => (
