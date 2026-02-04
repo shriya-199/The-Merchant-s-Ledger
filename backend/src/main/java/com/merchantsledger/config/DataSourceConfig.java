@@ -13,6 +13,7 @@ public class DataSourceConfig {
   @Bean
   @Primary
   public DataSource dataSource(DataSourceProperties properties, Environment environment) {
+    boolean renderEnv = "true".equalsIgnoreCase(environment.getProperty("RENDER"));
     String url = firstNonBlank(
         environment.getProperty("DB_URL"),
         environment.getProperty("DATABASE_URL"),
@@ -20,6 +21,9 @@ public class DataSourceConfig {
         environment.getProperty("POSTGRES_URL"),
         properties.getUrl()
     );
+    if (renderEnv && url != null && url.contains("localhost:5432")) {
+      url = null;
+    }
     if (url == null || url.isBlank()) {
       String host = firstNonBlank(environment.getProperty("POSTGRES_HOST"), environment.getProperty("PGHOST"));
       String port = firstNonBlank(environment.getProperty("POSTGRES_PORT"), environment.getProperty("PGPORT"), "5432");
@@ -32,6 +36,10 @@ public class DataSourceConfig {
       url = "jdbc:postgresql://" + url.substring("postgres://".length());
     } else if (url != null && url.startsWith("postgresql://")) {
       url = "jdbc:postgresql://" + url.substring("postgresql://".length());
+    }
+    if (renderEnv && (url == null || url.isBlank())) {
+      throw new IllegalStateException(
+          "Database URL is not configured on Render. Set one of DB_URL, DATABASE_URL, or POSTGRES_INTERNAL_URL.");
     }
     if (url != null && !url.isBlank()) {
       properties.setUrl(url);
