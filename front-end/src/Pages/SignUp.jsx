@@ -70,7 +70,15 @@ export default function Signup() {
       });
       navigate("/dashboard");
     } catch (err) {
-      setError(err.message || "Registration failed");
+      const message = err.message || "Registration failed";
+      if (message.toUpperCase().includes("OTP ALREADY USED")) {
+        setOtpMeta(null);
+        setEmailOtp("");
+        setPhoneOtp("");
+        setError("OTP already used. Please click Send OTP again.");
+      } else {
+        setError(message);
+      }
     } finally {
       setLoading(false);
     }

@@ -3,11 +3,24 @@ import { useNavigate } from "react-router-dom";
 import { apiRequest } from "../lib/api";
 import { useAuth } from "../context/AuthContext";
 
+const roleTitleOptions = [
+  "Merchant Admin",
+  "Merchant Finance Analyst",
+  "Operations Executive",
+  "Warehouse Manager",
+  "Inventory Auditor",
+  "Picker / Packer",
+  "Receiver / GRN Operator",
+  "Support Agent",
+  "System Administrator",
+];
+
 export default function Profile() {
   const { user, logout, refreshUser } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({
     fullName: "",
+    email: "",
     phone: "",
     address: "",
     companyName: "",
@@ -22,6 +35,7 @@ export default function Profile() {
     if (user) {
       setForm({
         fullName: user.fullName || "",
+        email: user.email || "",
         phone: user.phone || "",
         address: user.address || "",
         companyName: user.companyName || "",
@@ -38,11 +52,24 @@ export default function Profile() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setStatus({ type: "", message: "" });
+    if (!form.fullName.trim() || !form.phone.trim() || !form.companyName.trim() || !form.roleTitle.trim()) {
+      setStatus({
+        type: "error",
+        message: "Full name, phone, company, and role title are required.",
+      });
+      return;
+    }
 
     try {
       await apiRequest("/api/users/me", {
         method: "PUT",
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          fullName: form.fullName.trim(),
+          phone: form.phone.trim(),
+          address: form.address.trim(),
+          companyName: form.companyName.trim(),
+          roleTitle: form.roleTitle.trim(),
+        }),
       });
       await refreshUser();
       setStatus({ type: "success", message: "Profile updated" });
@@ -99,16 +126,26 @@ export default function Profile() {
     <div className="space-y-6">
       <header>
         <h2 className="text-2xl font-semibold">Profile</h2>
-        <p className="text-slate-600">Manage your account details and preferences.</p>
+        <p className="text-slate-600">Manage your professional details and account security settings.</p>
       </header>
 
       <form onSubmit={handleSubmit} className="rounded-2xl bg-white p-6 shadow-sm">
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          {(user?.roles || []).map((role) => (
+            <span key={role} className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+              {role}
+            </span>
+          ))}
+          <p className="text-xs text-slate-500">Assigned platform role is managed by admin.</p>
+        </div>
+
         <div className="grid gap-4 md:grid-cols-2">
-          <Field label="Full name" name="fullName" value={form.fullName} onChange={handleChange} />
-          <Field label="Phone" name="phone" value={form.phone} onChange={handleChange} />
-          <Field label="Company" name="companyName" value={form.companyName} onChange={handleChange} />
-          <Field label="Role title" name="roleTitle" value={form.roleTitle} onChange={handleChange} />
-          <Field label="Address" name="address" value={form.address} onChange={handleChange} />
+          <Field label="Full name *" name="fullName" value={form.fullName} onChange={handleChange} required />
+          <Field label="Email" name="email" value={form.email} onChange={handleChange} disabled />
+          <Field label="Phone *" name="phone" value={form.phone} onChange={handleChange} required />
+          <Field label="Company *" name="companyName" value={form.companyName} onChange={handleChange} required />
+          <RoleTitleField value={form.roleTitle} onChange={handleChange} />
+          <Field label="Office address" name="address" value={form.address} onChange={handleChange} />
         </div>
 
         <div className="mt-6 flex items-center gap-3">
@@ -179,7 +216,7 @@ export default function Profile() {
   );
 }
 
-function Field({ label, name, value, onChange }) {
+function Field({ label, name, value, onChange, required = false, disabled = false }) {
   return (
     <label className="block">
       <span className="text-sm font-medium text-slate-600">{label}</span>
@@ -187,8 +224,32 @@ function Field({ label, name, value, onChange }) {
         name={name}
         value={value}
         onChange={onChange}
-        className="mt-2 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+        required={required}
+        disabled={disabled}
+        className="mt-2 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm disabled:bg-slate-100 disabled:text-slate-500"
       />
+    </label>
+  );
+}
+
+function RoleTitleField({ value, onChange }) {
+  return (
+    <label className="block">
+      <span className="text-sm font-medium text-slate-600">Role title *</span>
+      <select
+        name="roleTitle"
+        value={value}
+        onChange={onChange}
+        required
+        className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm"
+      >
+        <option value="">Select role title</option>
+        {roleTitleOptions.map((title) => (
+          <option key={title} value={title}>
+            {title}
+          </option>
+        ))}
+      </select>
     </label>
   );
 }

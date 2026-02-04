@@ -87,8 +87,15 @@ public class AuthService {
     if (request.getPhone() == null || request.getPhone().isBlank()) {
       throw new BadRequestException("Phone is required for registration");
     }
-    otpService.verify(request.getEmailOtpChallengeId(), request.getEmailOtpCode(), request.getEmail(), OtpPurpose.REGISTER, "EMAIL");
-    otpService.verify(request.getPhoneOtpChallengeId(), request.getPhoneOtpCode(), request.getPhone(), OtpPurpose.REGISTER, "PHONE");
+    otpService.verifyPair(
+        request.getEmailOtpChallengeId(),
+        request.getEmailOtpCode(),
+        request.getEmail(),
+        request.getPhoneOtpChallengeId(),
+        request.getPhoneOtpCode(),
+        request.getPhone(),
+        OtpPurpose.REGISTER
+    );
 
     RoleName requestedRole = resolveRole(request.getRoleName());
     if (requestedRole == RoleName.ADMIN) {
@@ -126,11 +133,6 @@ public class AuthService {
 
     User user = userRepository.findByEmail(request.getEmail())
         .orElseThrow(() -> new BadRequestException("Invalid credentials"));
-    if (user.getPhone() == null || user.getPhone().isBlank()) {
-      throw new BadRequestException("Phone is not configured. Contact admin.");
-    }
-    otpService.verify(request.getEmailOtpChallengeId(), request.getEmailOtpCode(), user.getEmail(), OtpPurpose.LOGIN, "EMAIL");
-    otpService.verify(request.getPhoneOtpChallengeId(), request.getPhoneOtpCode(), user.getPhone(), OtpPurpose.LOGIN, "PHONE");
 
     if (!user.isEnabledFlag()) {
       throw new BadRequestException("Account is disabled");

@@ -6,53 +6,22 @@ import { loadGoogleScript, renderGoogleButton } from "../lib/googleIdentity";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [emailOtp, setEmailOtp] = useState("");
-  const [phoneOtp, setPhoneOtp] = useState("");
-  const [otpMeta, setOtpMeta] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const googleButtonRef = useRef(null);
   const navigate = useNavigate();
-  const { login, loginWithGoogle, requiresProfileCompletion, sendLoginOtp } = useAuth();
+  const { login, loginWithGoogle, requiresProfileCompletion } = useAuth();
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    if (!otpMeta) {
-      setError("Please send OTP first");
-      return;
-    }
     setLoading(true);
     try {
-      await login({
-        email,
-        password,
-        emailOtpChallengeId: otpMeta.emailChallengeId,
-        emailOtpCode: emailOtp,
-        phoneOtpChallengeId: otpMeta.phoneChallengeId,
-        phoneOtpCode: phoneOtp,
-      });
+      await login(email, password);
       navigate("/dashboard");
     } catch (err) {
       setError(err.message || "Login failed");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSendOtp = async () => {
-    setError("");
-    if (!email || !password) {
-      setError("Enter email and password first");
-      return;
-    }
-    setLoading(true);
-    try {
-      const response = await sendLoginOtp({ email, password });
-      setOtpMeta(response);
-    } catch (err) {
-      setError(err.message || "Failed to send OTP");
     } finally {
       setLoading(false);
     }
@@ -129,47 +98,6 @@ export default function Login() {
                 required
               />
             </div>
-
-            <button
-              type="button"
-              onClick={handleSendOtp}
-              className="w-full rounded-md border border-blue-200 bg-blue-50 py-2.5 text-sm font-medium text-blue-700 hover:bg-blue-100 transition"
-              disabled={loading}
-            >
-              Send OTP (Email + Mobile)
-            </button>
-
-            {otpMeta && (
-              <>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Email OTP</label>
-                  <input
-                    type="text"
-                    value={emailOtp}
-                    onChange={(e) => setEmailOtp(e.target.value)}
-                    placeholder="Enter email OTP"
-                    className="w-full px-3 py-2.5 rounded-md border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Mobile OTP</label>
-                  <input
-                    type="text"
-                    value={phoneOtp}
-                    onChange={(e) => setPhoneOtp(e.target.value)}
-                    placeholder="Enter mobile OTP"
-                    className="w-full px-3 py-2.5 rounded-md border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
-                </div>
-                {(otpMeta.emailDevCode || otpMeta.phoneDevCode) && (
-                  <p className="text-xs text-slate-500">
-                    Dev OTPs - Email: {otpMeta.emailDevCode || "-"}, Mobile: {otpMeta.phoneDevCode || "-"}
-                  </p>
-                )}
-              </>
-            )}
 
             <button
               type="submit"

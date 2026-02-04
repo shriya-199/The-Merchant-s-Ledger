@@ -96,13 +96,6 @@ export function AuthProvider({ children }) {
     });
   };
 
-  const sendLoginOtp = async ({ email, password }) => {
-    return apiRequest("/api/auth/login/send-otp", {
-      method: "POST",
-      body: JSON.stringify({ email, password }),
-    });
-  };
-
   const requiresProfileCompletion = (candidateUser) => {
     if (!candidateUser) {
       return false;
@@ -125,7 +118,6 @@ export function AuthProvider({ children }) {
       register,
       loginWithGoogle,
       sendSignupOtp,
-      sendLoginOtp,
       completeProfile,
       requiresProfileCompletion,
       logout,

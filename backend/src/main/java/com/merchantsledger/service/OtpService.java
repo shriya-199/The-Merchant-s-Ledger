@@ -54,10 +54,33 @@ public class OtpService {
   }
 
   public void verify(String challengeId, String code, String target, OtpPurpose purpose, String channel) {
+    cleanupExpired();
+    Challenge challenge = validateChallenge(challengeId, code, target, purpose, channel);
+    challenges.put(challengeId, challenge.markUsed());
+  }
+
+  public void verifyPair(String emailChallengeId,
+                         String emailCode,
+                         String emailTarget,
+                         String phoneChallengeId,
+                         String phoneCode,
+                         String phoneTarget,
+                         OtpPurpose purpose) {
+    cleanupExpired();
+    Challenge emailChallenge = validateChallenge(emailChallengeId, emailCode, emailTarget, purpose, "EMAIL");
+    Challenge phoneChallenge = validateChallenge(phoneChallengeId, phoneCode, phoneTarget, purpose, "PHONE");
+    challenges.put(emailChallengeId, emailChallenge.markUsed());
+    challenges.put(phoneChallengeId, phoneChallenge.markUsed());
+  }
+
+  private Challenge validateChallenge(String challengeId,
+                                      String code,
+                                      String target,
+                                      OtpPurpose purpose,
+                                      String channel) {
     if (challengeId == null || challengeId.isBlank() || code == null || code.isBlank()) {
       throw new BadRequestException(channel + " OTP and challenge are required");
     }
-    cleanupExpired();
     Challenge challenge = challenges.get(challengeId);
     if (challenge == null) {
       throw new BadRequestException(channel + " OTP challenge not found or expired");
@@ -81,7 +104,7 @@ public class OtpService {
     if (!challenge.code().equals(code.trim())) {
       throw new BadRequestException("Invalid " + channel + " OTP");
     }
-    challenges.put(challengeId, challenge.markUsed());
+    return challenge;
   }
 
   private Challenge issueChallenge(String channel, String target, OtpPurpose purpose) {
