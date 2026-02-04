@@ -17,8 +17,13 @@ public class DataSourceConfig {
     if (url == null || url.isBlank()) {
       url = environment.getProperty("DB_URL");
     }
+    if (url == null || url.isBlank()) {
+      url = environment.getProperty("DATABASE_URL");
+    }
     if (url != null && url.startsWith("postgres://")) {
       url = "jdbc:postgresql://" + url.substring("postgres://".length());
+    } else if (url != null && url.startsWith("postgresql://")) {
+      url = "jdbc:postgresql://" + url.substring("postgresql://".length());
     }
     if (url != null && !url.isBlank()) {
       properties.setUrl(url);
