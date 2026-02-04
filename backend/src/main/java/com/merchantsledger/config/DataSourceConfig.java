@@ -13,12 +13,20 @@ public class DataSourceConfig {
   @Bean
   @Primary
   public DataSource dataSource(DataSourceProperties properties, Environment environment) {
-    String url = properties.getUrl();
+    String url = firstNonBlank(
+        properties.getUrl(),
+        environment.getProperty("DB_URL"),
+        environment.getProperty("DATABASE_URL"),
+        environment.getProperty("POSTGRES_INTERNAL_URL"),
+        environment.getProperty("POSTGRES_URL")
+    );
     if (url == null || url.isBlank()) {
-      url = environment.getProperty("DB_URL");
-    }
-    if (url == null || url.isBlank()) {
-      url = environment.getProperty("DATABASE_URL");
+      String host = firstNonBlank(environment.getProperty("POSTGRES_HOST"), environment.getProperty("PGHOST"));
+      String port = firstNonBlank(environment.getProperty("POSTGRES_PORT"), environment.getProperty("PGPORT"), "5432");
+      String db = firstNonBlank(environment.getProperty("POSTGRES_DB"), environment.getProperty("PGDATABASE"));
+      if (host != null && db != null) {
+        url = "jdbc:postgresql://" + host + ":" + port + "/" + db;
+      }
     }
     if (url != null && url.startsWith("postgres://")) {
       url = "jdbc:postgresql://" + url.substring("postgres://".length());
@@ -29,5 +37,14 @@ public class DataSourceConfig {
       properties.setUrl(url);
     }
     return properties.initializeDataSourceBuilder().build();
+  }
+
+  private String firstNonBlank(String... candidates) {
+    for (String value : candidates) {
+      if (value != null && !value.isBlank()) {
+        return value;
+      }
+    }
+    return null;
   }
 }
