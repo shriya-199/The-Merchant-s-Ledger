@@ -22,4 +22,15 @@ body {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   background-color: #f8fafc; /* slate-50 */
   color: #0f172a; /* slate-900 */
+  transition: background-color 260ms ease, color 260ms ease;
+}
+
+html[data-theme="dark"] body {
+  background-color: #020617;
+  color: #e2e8f0;
+}
+
+html[data-theme="light"] body {
+  background-color: #f8fafc;
+  color: #0f172a;
 }

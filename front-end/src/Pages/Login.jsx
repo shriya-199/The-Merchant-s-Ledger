@@ -2,16 +2,24 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { loadGoogleScript, renderGoogleButton } from "../lib/googleIdentity";
+import { getTheme, subscribeTheme } from "../lib/theme";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [theme, setTheme] = useState(getTheme);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const googleButtonRef = useRef(null);
   const navigate = useNavigate();
   const { login, loginWithGoogle, requiresProfileCompletion } = useAuth();
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+  const isDark = theme === "dark";
+
+  useEffect(() => {
+    const unsubscribe = subscribeTheme(setTheme);
+    return unsubscribe;
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -55,46 +63,53 @@ export default function Login() {
   }, [googleClientId, loginWithGoogle, navigate, requiresProfileCompletion]);
 
   return (
-    <div className="min-h-screen w-full grid grid-cols-1 md:grid-cols-2">
+    <div className={`min-h-screen w-full grid grid-cols-1 md:grid-cols-2 transition-colors duration-500 ${isDark ? "bg-slate-950" : "bg-slate-100"}`}>
       {/* Left Branding Section */}
-      <div className="hidden md:flex flex-col justify-center px-16 bg-slate-900 text-white">
-        <h1 className="text-4xl font-semibold mb-4">Welcome Back</h1>
-        <p className="text-slate-300 max-w-md">
-          Real-time inventory control across warehouses, orders, and suppliers.
-        </p>
+      <div className="relative hidden md:flex flex-col justify-center px-16 text-white overflow-hidden">
+        <div className={`absolute inset-0 transition-colors duration-700 ${isDark ? "bg-slate-900" : "bg-slate-700"}`} />
+        <div className="relative z-10">
+          <h1 className="text-4xl font-semibold mb-4">Welcome Back</h1>
+          <p className="text-slate-100 max-w-md">
+            Real-time inventory control across warehouses, orders, and suppliers.
+          </p>
+        </div>
       </div>
 
       {/* Right Login Section */}
-      <div className="flex items-center justify-center bg-slate-50 px-6">
-        <div className="w-full max-w-md">
-          <h2 className="text-2xl font-semibold text-slate-800 mb-2">Sign in</h2>
-          <p className="text-sm text-slate-500 mb-8">
+      <div className={`relative flex items-center justify-center px-6 transition-colors duration-500 ${isDark ? "bg-slate-900" : "bg-slate-50"}`}>
+        <div className={`w-full max-w-md rounded-2xl p-8 shadow-sm transition-colors duration-500 ${isDark ? "bg-slate-800 text-slate-100" : "bg-white text-slate-900"}`}>
+          <h2 className={`text-2xl font-semibold mb-2 ${isDark ? "text-slate-100" : "text-slate-800"}`}>Sign in</h2>
+          <p className={`text-sm mb-8 transition-colors duration-500 ${isDark ? "text-slate-300" : "text-slate-500"}`}>
             Use your credentials to access the dashboard
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+              <label className={`block text-sm font-medium mb-1 ${isDark ? "text-slate-100" : "text-slate-700"}`}>Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className="w-full px-3 py-2.5 rounded-md border border-slate-300
-                           focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full px-3 py-2.5 rounded-md border transition-colors duration-500 ${
+                  isDark ? "border-slate-600 bg-slate-900 text-slate-100" : "border-slate-300 bg-white text-slate-900"
+                }
+                           focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
+              <label className={`block text-sm font-medium mb-1 ${isDark ? "text-slate-100" : "text-slate-700"}`}>Password</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="********"
-                className="w-full px-3 py-2.5 rounded-md border border-slate-300
-                           focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full px-3 py-2.5 rounded-md border transition-colors duration-500 ${
+                  isDark ? "border-slate-600 bg-slate-900 text-slate-100" : "border-slate-300 bg-white text-slate-900"
+                }
+                           focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 required
               />
             </div>
@@ -113,7 +128,7 @@ export default function Login() {
                 Forgot Password?
               </a>
 
-              <p className="text-sm text-slate-600">
+              <p className={`text-sm ${isDark ? "text-slate-300" : "text-slate-600"}`}>
                 New user?{" "}
                 <Link to="/signup" className="text-blue-600 hover:underline">
                   Sign up
@@ -131,7 +146,7 @@ export default function Login() {
             <div ref={googleButtonRef} className="flex justify-center" />
           </div>
 
-          <p className="text-xs text-slate-500 mt-8 text-center">
+          <p className={`text-xs mt-8 text-center ${isDark ? "text-slate-400" : "text-slate-500"}`}>
             (c) 2026 Enterprise Platform. All rights reserved.
           </p>
         </div>

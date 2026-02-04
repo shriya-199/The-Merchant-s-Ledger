@@ -22,10 +22,12 @@ import CompleteProfile from "./Pages/CompleteProfile.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import AppLayout from "./components/AppLayout.jsx";
 import RoleRedirect from "./components/RoleRedirect.jsx";
+import ThemeToggle from "./components/ThemeToggle.jsx";
 
 function App() {
   return (
     <Router>
+      <ThemeToggle />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />

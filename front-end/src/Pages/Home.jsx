@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import {
   ArrowRight,
   Boxes,
@@ -11,14 +12,26 @@ import {
   Lock,
   Users,
 } from "lucide-react";
+import { getTheme, subscribeTheme } from "../lib/theme";
 
 /* ===================== HOME ===================== */
 
 export default function Home() {
   const navigate = useNavigate();
+  const [theme, setTheme] = useState(getTheme);
+  const isDark = theme === "dark";
+
+  useEffect(() => {
+    const unsubscribe = subscribeTheme(setTheme);
+    return unsubscribe;
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-200 via-slate-300 to-slate-500 text-white">
+    <div className={`min-h-screen transition-colors duration-500 ${
+      isDark
+        ? "bg-gradient-to-br from-slate-900 via-slate-950 to-black text-white"
+        : "bg-gradient-to-br from-slate-200 via-slate-300 to-slate-500 text-white"
+    }`}>
 
       {/* ================= NAVBAR ================= */}
       <nav className="top-0 z-50 flex justify-between items-center px-10 py-6 ">

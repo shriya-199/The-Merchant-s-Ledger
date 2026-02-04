@@ -1,9 +1,13 @@
 import { NavLink, Outlet } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { canManageUsers, canRunReconciliation, canViewFinance, getDashboardPath, hasAnyRole } from "../lib/roles";
+import { getTheme, subscribeTheme } from "../lib/theme";
 
 export default function AppLayout() {
   const { user, logout } = useAuth();
+  const [theme, setTheme] = useState(getTheme);
+  const isDark = theme === "dark";
   const roles = user?.roles || [];
   const canEditInventory = hasAnyRole(roles, [
     "SYSTEM_ADMIN",
@@ -28,19 +32,24 @@ export default function AppLayout() {
     "MANAGER",
   ]);
 
+  useEffect(() => {
+    const unsubscribe = subscribeTheme(setTheme);
+    return unsubscribe;
+  }, []);
+
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <header className="border-b border-slate-200 bg-white">
+    <div className={`min-h-screen transition-colors duration-500 ${isDark ? "bg-slate-950 text-slate-100" : "bg-slate-50 text-slate-900"}`}>
+      <header className={`border-b transition-colors duration-500 ${isDark ? "border-slate-800 bg-slate-900" : "border-slate-200 bg-white"}`}>
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Merchant's Ledger</p>
+            <p className={`text-xs uppercase tracking-[0.2em] ${isDark ? "text-slate-400" : "text-slate-500"}`}>Merchant's Ledger</p>
             <h1 className="text-xl font-semibold">Operations Console</h1>
           </div>
           <div className="flex items-center gap-4 text-sm">
-            <span className="text-slate-600">{user?.fullName}</span>
+            <span className={isDark ? "text-slate-300" : "text-slate-600"}>{user?.fullName}</span>
             <button
               onClick={logout}
-              className="rounded-md border border-slate-200 px-3 py-1.5 text-sm hover:bg-slate-100"
+              className={`rounded-md border px-3 py-1.5 text-sm transition-colors ${isDark ? "border-slate-700 hover:bg-slate-800" : "border-slate-200 hover:bg-slate-100"}`}
             >
               Sign out
             </button>
@@ -49,7 +58,7 @@ export default function AppLayout() {
       </header>
 
       <div className="mx-auto w-full max-w-6xl px-6">
-        <nav className="flex flex-wrap gap-3 py-6 text-sm text-slate-600">
+        <nav className={`flex flex-wrap gap-3 py-6 text-sm ${isDark ? "text-slate-300" : "text-slate-600"}`}>
           <NavLink
             to={getDashboardPath(roles)}
             className={({ isActive }) =>

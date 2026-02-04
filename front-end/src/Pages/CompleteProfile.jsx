@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { getTheme, subscribeTheme } from "../lib/theme";
 
 const roleOptions = [
   { value: "MERCHANT_OPERATIONS", label: "Merchant Operations" },
@@ -27,6 +28,8 @@ export default function CompleteProfile() {
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [theme, setTheme] = useState(getTheme);
+  const isDark = theme === "dark";
 
   useEffect(() => {
     if (!user) {
@@ -43,6 +46,11 @@ export default function CompleteProfile() {
       roleName: user.roles?.[0] || "MERCHANT_OPERATIONS",
     }));
   }, [user]);
+
+  useEffect(() => {
+    const unsubscribe = subscribeTheme(setTheme);
+    return unsubscribe;
+  }, []);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -71,28 +79,30 @@ export default function CompleteProfile() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-6 py-10">
-      <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-sm">
-        <h2 className="text-2xl font-semibold text-slate-900">Complete your profile</h2>
-        <p className="mt-2 text-sm text-slate-500">
+    <div className={`min-h-screen flex items-center justify-center px-6 py-10 transition-colors duration-500 ${isDark ? "bg-slate-950" : "bg-slate-50"}`}>
+      <div className={`w-full max-w-lg rounded-2xl p-6 shadow-sm transition-colors duration-500 ${isDark ? "bg-slate-900 text-slate-100" : "bg-white text-slate-900"}`}>
+        <h2 className="text-2xl font-semibold">Complete your profile</h2>
+        <p className={`mt-2 text-sm ${isDark ? "text-slate-300" : "text-slate-500"}`}>
           Google se name aur email prefill ho gaye hain. Baaki details add karke continue karein.
         </p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          <Field label="Full name" name="fullName" value={form.fullName} onChange={handleChange} required />
-          <Field label="Email" name="email" value={form.email} onChange={handleChange} disabled />
-          <Field label="Phone" name="phone" value={form.phone} onChange={handleChange} required />
-          <Field label="Company" name="companyName" value={form.companyName} onChange={handleChange} required />
-          <Field label="Address" name="address" value={form.address} onChange={handleChange} />
-          <Field label="Role title" name="roleTitle" value={form.roleTitle} onChange={handleChange} required />
+          <Field label="Full name" name="fullName" value={form.fullName} onChange={handleChange} required isDark={isDark} />
+          <Field label="Email" name="email" value={form.email} onChange={handleChange} disabled isDark={isDark} />
+          <Field label="Phone" name="phone" value={form.phone} onChange={handleChange} required isDark={isDark} />
+          <Field label="Company" name="companyName" value={form.companyName} onChange={handleChange} required isDark={isDark} />
+          <Field label="Address" name="address" value={form.address} onChange={handleChange} isDark={isDark} />
+          <Field label="Role title" name="roleTitle" value={form.roleTitle} onChange={handleChange} required isDark={isDark} />
 
           <label className="block">
-            <span className="text-sm font-medium text-slate-700">Role</span>
+            <span className={`text-sm font-medium ${isDark ? "text-slate-200" : "text-slate-700"}`}>Role</span>
             <select
               name="roleName"
               value={form.roleName}
               onChange={handleChange}
-              className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm"
+              className={`mt-2 w-full rounded-lg border px-3 py-2 text-sm transition-colors ${
+                isDark ? "border-slate-700 bg-slate-800 text-slate-100" : "border-slate-200 bg-white text-slate-900"
+              }`}
               required
             >
               {roleOptions.map((role) => (
@@ -118,17 +128,19 @@ export default function CompleteProfile() {
   );
 }
 
-function Field({ label, name, value, onChange, required = false, disabled = false }) {
+function Field({ label, name, value, onChange, required = false, disabled = false, isDark = false }) {
   return (
     <label className="block">
-      <span className="text-sm font-medium text-slate-700">{label}</span>
+      <span className={`text-sm font-medium ${isDark ? "text-slate-200" : "text-slate-700"}`}>{label}</span>
       <input
         name={name}
         value={value}
         onChange={onChange}
         required={required}
         disabled={disabled}
-        className="mt-2 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm disabled:bg-slate-100 disabled:text-slate-500"
+        className={`mt-2 w-full rounded-lg border px-3 py-2 text-sm transition-colors disabled:text-slate-500 ${
+          isDark ? "border-slate-700 bg-slate-800 text-slate-100 disabled:bg-slate-800" : "border-slate-200 bg-white text-slate-900 disabled:bg-slate-100"
+        }`}
       />
     </label>
   );
