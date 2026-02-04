@@ -14,11 +14,11 @@ public class DataSourceConfig {
   @Primary
   public DataSource dataSource(DataSourceProperties properties, Environment environment) {
     String url = firstNonBlank(
-        properties.getUrl(),
         environment.getProperty("DB_URL"),
         environment.getProperty("DATABASE_URL"),
         environment.getProperty("POSTGRES_INTERNAL_URL"),
-        environment.getProperty("POSTGRES_URL")
+        environment.getProperty("POSTGRES_URL"),
+        properties.getUrl()
     );
     if (url == null || url.isBlank()) {
       String host = firstNonBlank(environment.getProperty("POSTGRES_HOST"), environment.getProperty("PGHOST"));
