@@ -96,6 +96,20 @@ export function AuthProvider({ children }) {
     });
   };
 
+  const sendForgotPasswordOtp = async ({ email }) => {
+    return apiRequest("/api/auth/forgot-password/send-otp", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    });
+  };
+
+  const resetForgottenPassword = async ({ email, emailOtpChallengeId, emailOtpCode, newPassword }) => {
+    return apiRequest("/api/auth/forgot-password/reset", {
+      method: "POST",
+      body: JSON.stringify({ email, emailOtpChallengeId, emailOtpCode, newPassword }),
+    });
+  };
+
   const requiresProfileCompletion = (candidateUser) => {
     if (!candidateUser) {
       return false;
@@ -118,6 +132,8 @@ export function AuthProvider({ children }) {
       register,
       loginWithGoogle,
       sendSignupOtp,
+      sendForgotPasswordOtp,
+      resetForgottenPassword,
       completeProfile,
       requiresProfileCompletion,
       logout,

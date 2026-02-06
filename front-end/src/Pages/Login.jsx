@@ -124,9 +124,9 @@ export default function Login() {
             </button>
 
             <div className="flex items-center justify-between">
-              <a href="#" className="text-sm text-blue-600 hover:underline">
+              <Link to="/forgot-password" className="text-sm text-blue-600 hover:underline">
                 Forgot Password?
-              </a>
+              </Link>
 
               <p className={`text-sm ${isDark ? "text-slate-300" : "text-slate-600"}`}>
                 New user?{" "}

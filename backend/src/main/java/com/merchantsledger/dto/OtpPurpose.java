@@ -4,5 +4,6 @@ public enum OtpPurpose {
   REGISTER,
   LOGIN,
   PROFILE,
-  ACCOUNT_DELETE
+  ACCOUNT_DELETE,
+  PASSWORD_RESET
 }

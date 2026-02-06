@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Home from "./Pages/Home.jsx";
 import Login from "./Pages/Login.jsx";
 import Signup from "./Pages/SignUp.jsx";
+import ForgotPassword from "./Pages/ForgotPassword.jsx";
 import Dashboard from "./Pages/Dashboard.jsx";
 import Customers from "./Pages/Customers.jsx";
 import Ledger from "./Pages/Ledger.jsx";
@@ -22,16 +23,15 @@ import CompleteProfile from "./Pages/CompleteProfile.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import AppLayout from "./components/AppLayout.jsx";
 import RoleRedirect from "./components/RoleRedirect.jsx";
-import ThemeToggle from "./components/ThemeToggle.jsx";
 
 function App() {
   return (
     <Router>
-      <ThemeToggle />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route
           path="/complete-profile"
           element={

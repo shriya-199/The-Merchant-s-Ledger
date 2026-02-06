@@ -5,6 +5,8 @@ import org.springframework.web.bind.annotation.*;
 
 import com.merchantsledger.dto.AuthRequest;
 import com.merchantsledger.dto.AuthResponse;
+import com.merchantsledger.dto.ForgotPasswordResetRequest;
+import com.merchantsledger.dto.ForgotPasswordSendRequest;
 import com.merchantsledger.dto.GoogleAuthRequest;
 import com.merchantsledger.dto.OtpChallengeResponse;
 import com.merchantsledger.dto.OtpSendRequest;
@@ -50,6 +52,16 @@ public class AuthController {
   @PostMapping("/google")
   public AuthResponse google(@Valid @RequestBody GoogleAuthRequest request) {
     return authService.googleAuth(request.getCredential());
+  }
+
+  @PostMapping("/forgot-password/send-otp")
+  public OtpChallengeResponse sendForgotPasswordOtp(@Valid @RequestBody ForgotPasswordSendRequest request) {
+    return authService.sendForgotPasswordOtp(request);
+  }
+
+  @PostMapping("/forgot-password/reset")
+  public void resetForgotPassword(@Valid @RequestBody ForgotPasswordResetRequest request) {
+    authService.resetForgottenPassword(request);
   }
 
   @GetMapping("/me")

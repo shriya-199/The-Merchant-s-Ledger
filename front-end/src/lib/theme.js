@@ -2,21 +2,17 @@ const STORAGE_KEY = "auth_theme";
 const EVENT_NAME = "app-theme-change";
 
 function applyTheme(theme) {
-  const resolved = theme === "dark" ? "dark" : "light";
+  const resolved = "light";
   document.documentElement.setAttribute("data-theme", resolved);
   document.body.setAttribute("data-theme", resolved);
 }
 
 export function getTheme() {
-  if (typeof window === "undefined") {
-    return "dark";
-  }
-  const saved = localStorage.getItem(STORAGE_KEY);
-  return saved === "light" ? "light" : "dark";
+  return "light";
 }
 
 export function setTheme(theme) {
-  const resolved = theme === "light" ? "light" : "dark";
+  const resolved = "light";
   localStorage.setItem(STORAGE_KEY, resolved);
   applyTheme(resolved);
   window.dispatchEvent(new CustomEvent(EVENT_NAME, { detail: resolved }));
@@ -24,8 +20,7 @@ export function setTheme(theme) {
 }
 
 export function toggleTheme() {
-  const next = getTheme() === "dark" ? "light" : "dark";
-  return setTheme(next);
+  return setTheme("light");
 }
 
 export function initTheme() {

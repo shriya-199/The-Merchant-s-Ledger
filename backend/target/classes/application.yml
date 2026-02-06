@@ -1,24 +1,53 @@
 server:
-  port: 8080
+  port: ${PORT:8080}
+  shutdown: graceful
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/plain,text/css,application/javascript
+    min-response-size: 1KB
+  tomcat:
+    threads:
+      max: ${TOMCAT_MAX_THREADS:200}
+      min-spare: ${TOMCAT_MIN_SPARE_THREADS:20}
+    max-connections: ${TOMCAT_MAX_CONNECTIONS:8192}
+    accept-count: ${TOMCAT_ACCEPT_COUNT:100}
 
 spring:
+  main:
+    lazy-initialization: false
   datasource:
     url: ${DB_URL:${DATABASE_URL:jdbc:postgresql://localhost:5432/merchant_ledger}}
     username: ${DB_USERNAME:${DATABASE_USERNAME:${POSTGRES_USER:${PGUSER:postgres}}}}
     password: ${DB_PASSWORD:${DATABASE_PASSWORD:${POSTGRES_PASSWORD:${PGPASSWORD:Ansh}}}}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      pool-name: MerchantLedgerHikariPool
+      maximum-pool-size: ${DB_POOL_MAX_SIZE:20}
+      minimum-idle: ${DB_POOL_MIN_IDLE:5}
+      idle-timeout: ${DB_POOL_IDLE_TIMEOUT_MS:300000}
+      max-lifetime: ${DB_POOL_MAX_LIFETIME_MS:1800000}
+      connection-timeout: ${DB_POOL_CONNECTION_TIMEOUT_MS:30000}
+      validation-timeout: ${DB_POOL_VALIDATION_TIMEOUT_MS:5000}
+      leak-detection-threshold: ${DB_POOL_LEAK_DETECTION_MS:0}
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
     open-in-view: false
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          batch_size: ${HIBERNATE_BATCH_SIZE:30}
+        order_inserts: true
+        order_updates: true
   jackson:
     serialization:
       WRITE_DATES_AS_TIMESTAMPS: false
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
 
 app:
   jwt:
@@ -31,3 +60,17 @@ app:
     exposeCodes: ${OTP_EXPOSE_CODES:true}
   cors:
     allowedOrigins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:3000}
+
+management:
+  endpoint:
+    health:
+      show-details: when_authorized
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+logging:
+  level:
+    root: INFO
+    com.merchantsledger: INFO

@@ -67,6 +67,7 @@ C:\Users\hp\OneDrive\Desktop\Shriya Fullstack projects\The Merchant's Ledger\bac
 C:\Users\hp\OneDrive\Desktop\Shriya Fullstack projects\The Merchant's Ledger\backend\src\main\java\com\merchantsledger\dto\OtpChallengeResponse.java
 C:\Users\hp\OneDrive\Desktop\Shriya Fullstack projects\The Merchant's Ledger\backend\src\main\java\com\merchantsledger\controller\AnalyticsController.java
 C:\Users\hp\OneDrive\Desktop\Shriya Fullstack projects\The Merchant's Ledger\backend\src\main\java\com\merchantsledger\entity\CycleCountStatus.java
+C:\Users\hp\OneDrive\Desktop\Shriya Fullstack projects\The Merchant's Ledger\backend\src\main\java\com\merchantsledger\dto\ForgotPasswordResetRequest.java
 C:\Users\hp\OneDrive\Desktop\Shriya Fullstack projects\The Merchant's Ledger\backend\src\main\java\com\merchantsledger\dto\StockMovementResponse.java
 C:\Users\hp\OneDrive\Desktop\Shriya Fullstack projects\The Merchant's Ledger\backend\src\main\java\com\merchantsledger\entity\CycleCountLine.java
 C:\Users\hp\OneDrive\Desktop\Shriya Fullstack projects\The Merchant's Ledger\backend\src\main\java\com\merchantsledger\service\OtpService.java
@@ -87,6 +88,7 @@ C:\Users\hp\OneDrive\Desktop\Shriya Fullstack projects\The Merchant's Ledger\bac
 C:\Users\hp\OneDrive\Desktop\Shriya Fullstack projects\The Merchant's Ledger\backend\src\main\java\com\merchantsledger\dto\UserUpdateRequest.java
 C:\Users\hp\OneDrive\Desktop\Shriya Fullstack projects\The Merchant's Ledger\backend\src\main\java\com\merchantsledger\config\WebSocketConfig.java
 C:\Users\hp\OneDrive\Desktop\Shriya Fullstack projects\The Merchant's Ledger\backend\src\main\java\com\merchantsledger\service\AuthService.java
+C:\Users\hp\OneDrive\Desktop\Shriya Fullstack projects\The Merchant's Ledger\backend\src\main\java\com\merchantsledger\dto\ForgotPasswordSendRequest.java
 C:\Users\hp\OneDrive\Desktop\Shriya Fullstack projects\The Merchant's Ledger\backend\src\main\java\com\merchantsledger\service\LedgerService.java
 C:\Users\hp\OneDrive\Desktop\Shriya Fullstack projects\The Merchant's Ledger\backend\src\main\java\com\merchantsledger\seed\DataSeeder.java
 C:\Users\hp\OneDrive\Desktop\Shriya Fullstack projects\The Merchant's Ledger\backend\src\main\java\com\merchantsledger\controller\ReconciliationController.java

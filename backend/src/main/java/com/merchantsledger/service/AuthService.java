@@ -18,6 +18,8 @@ import org.springframework.web.client.RestTemplate;
 import com.merchantsledger.config.JwtService;
 import com.merchantsledger.dto.AuthRequest;
 import com.merchantsledger.dto.AuthResponse;
+import com.merchantsledger.dto.ForgotPasswordResetRequest;
+import com.merchantsledger.dto.ForgotPasswordSendRequest;
 import com.merchantsledger.dto.GoogleTokenInfo;
 import com.merchantsledger.dto.OtpChallengeResponse;
 import com.merchantsledger.dto.OtpPurpose;
@@ -160,6 +162,29 @@ public class AuthService {
 
   public OtpChallengeResponse sendOtp(String email, String phone, OtpPurpose purpose) {
     return otpService.sendPair(email, phone, purpose);
+  }
+
+  public OtpChallengeResponse sendForgotPasswordOtp(ForgotPasswordSendRequest request) {
+    User user = userRepository.findByEmail(request.getEmail().trim())
+        .orElseThrow(() -> new BadRequestException("Account not found for this email"));
+    return otpService.sendEmailOnly(user.getEmail(), OtpPurpose.PASSWORD_RESET);
+  }
+
+  public void resetForgottenPassword(ForgotPasswordResetRequest request) {
+    User user = userRepository.findByEmail(request.getEmail().trim())
+        .orElseThrow(() -> new BadRequestException("Account not found for this email"));
+
+    otpService.verify(
+        request.getEmailOtpChallengeId(),
+        request.getEmailOtpCode(),
+        user.getEmail(),
+        OtpPurpose.PASSWORD_RESET,
+        "EMAIL"
+    );
+    validatePassword(request.getNewPassword());
+    user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
+    userRepository.save(user);
+    auditService.log(user, "USER_PASSWORD_RESET", "User", String.valueOf(user.getId()), "Forgot password flow");
   }
 
   public OtpChallengeResponse sendLoginOtp(AuthRequest request) {

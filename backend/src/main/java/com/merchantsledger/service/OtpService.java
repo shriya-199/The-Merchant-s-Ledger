@@ -53,6 +53,20 @@ public class OtpService {
     );
   }
 
+  public OtpChallengeResponse sendEmailOnly(String email, OtpPurpose purpose) {
+    cleanupExpired();
+    Challenge emailChallenge = issueChallenge("EMAIL", email, purpose);
+    return new OtpChallengeResponse(
+        emailChallenge.id(),
+        null,
+        maskEmail(email),
+        null,
+        expiryMinutes * 60,
+        exposeCodes ? emailChallenge.code() : null,
+        null
+    );
+  }
+
   public void verify(String challengeId, String code, String target, OtpPurpose purpose, String channel) {
     cleanupExpired();
     Challenge challenge = validateChallenge(challengeId, code, target, purpose, channel);

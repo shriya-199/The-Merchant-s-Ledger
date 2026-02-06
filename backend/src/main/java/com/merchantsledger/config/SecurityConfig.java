@@ -35,7 +35,8 @@ public class SecurityConfig {
         .authorizeHttpRequests(auth -> auth
             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
             .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/google",
-                "/api/auth/otp/send", "/api/auth/login/send-otp", "/ws/**").permitAll()
+                "/api/auth/otp/send", "/api/auth/login/send-otp", "/api/auth/forgot-password/send-otp",
+                "/api/auth/forgot-password/reset", "/ws/**").permitAll()
             .requestMatchers("/api/admin/**").hasAnyRole("SYSTEM_ADMIN", "MERCHANT_ADMIN", "ADMIN")
             .requestMatchers("/api/audit/**").hasAnyRole(
                 "SYSTEM_ADMIN", "MERCHANT_ADMIN", "WAREHOUSE_MANAGER", "INVENTORY_AUDITOR", "ADMIN", "MANAGER")
