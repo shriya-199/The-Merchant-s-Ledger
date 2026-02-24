@@ -1,6 +1,7 @@
 package com.merchantsledger.service;
 
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
@@ -204,14 +205,11 @@ public class AuthService {
   }
 
   public AuthResponse googleAuth(String credential) {
-    if (googleClientId == null || googleClientId.isBlank()) {
-      throw new BadRequestException("Google authentication is not configured");
-    }
     GoogleTokenInfo tokenInfo = fetchGoogleTokenInfo(credential);
     if (tokenInfo == null || tokenInfo.getEmail() == null || tokenInfo.getEmail().isBlank()) {
       throw new BadRequestException("Invalid Google credential");
     }
-    if (!googleClientId.equals(tokenInfo.getAud())) {
+    if (!isAcceptedGoogleAudience(tokenInfo)) {
       throw new BadRequestException("Google token audience mismatch");
     }
     if (!"true".equalsIgnoreCase(tokenInfo.getEmailVerified())) {
@@ -303,5 +301,24 @@ public class AuthService {
       return email.substring(0, split);
     }
     return "Google User";
+  }
+
+  private boolean isAcceptedGoogleAudience(GoogleTokenInfo tokenInfo) {
+    if (googleClientId == null || googleClientId.isBlank()) {
+      return true;
+    }
+    Set<String> acceptedClientIds = new LinkedHashSet<>();
+    for (String candidate : googleClientId.split(",")) {
+      String value = candidate == null ? null : candidate.trim();
+      if (value != null && !value.isBlank()) {
+        acceptedClientIds.add(value);
+      }
+    }
+    if (acceptedClientIds.isEmpty()) {
+      return true;
+    }
+    String audience = tokenInfo.getAud() == null ? "" : tokenInfo.getAud().trim();
+    String authorizedParty = tokenInfo.getAzp() == null ? "" : tokenInfo.getAzp().trim();
+    return acceptedClientIds.contains(audience) || acceptedClientIds.contains(authorizedParty);
   }
 }

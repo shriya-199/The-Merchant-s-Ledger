@@ -7,6 +7,7 @@ public class GoogleTokenInfo {
   private String email;
   private String name;
   private String sub;
+  private String azp;
   private String picture;
   @JsonProperty("email_verified")
   private String emailVerified;
@@ -41,6 +42,14 @@ public class GoogleTokenInfo {
 
   public void setSub(String sub) {
     this.sub = sub;
+  }
+
+  public String getAzp() {
+    return azp;
+  }
+
+  public void setAzp(String azp) {
+    this.azp = azp;
   }
 
   public String getPicture() {

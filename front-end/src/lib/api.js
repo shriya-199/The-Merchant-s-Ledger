@@ -23,10 +23,15 @@ export async function apiRequest(path, options = {}) {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    headers,
-  });
+  let response;
+  try {
+    response = await fetch(`${API_BASE}${path}`, {
+      ...options,
+      headers,
+    });
+  } catch {
+    throw new Error(`Unable to reach backend at ${API_BASE}. Check deployment URL and CORS settings.`);
+  }
 
   if (!response.ok) {
     const errorBody = await response.json().catch(() => ({ message: "Request failed" }));
