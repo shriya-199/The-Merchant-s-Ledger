@@ -7,14 +7,18 @@ services:
     plan: free
     autoDeploy: true
     envVars:
-      - key: DB_URL
+      - key: DB_HOST
         fromDatabase:
           name: merchants-ledger-db
-          property: connectionString
-      - key: DATABASE_URL
+          property: host
+      - key: DB_PORT
         fromDatabase:
           name: merchants-ledger-db
-          property: connectionString
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: merchants-ledger-db
+          property: database
       - key: DB_USERNAME
         fromDatabase:
           name: merchants-ledger-db
