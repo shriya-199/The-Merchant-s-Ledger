@@ -20,9 +20,9 @@ spring:
     redis:
       time-to-live: ${CACHE_TTL_SECONDS:120}s
   datasource:
-    url: ${DB_URL:jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:merchant_ledger}}
-    username: ${DB_USERNAME:${DATABASE_USERNAME:${POSTGRES_USER:${PGUSER:postgres}}}}
-    password: ${DB_PASSWORD:${DATABASE_PASSWORD:${POSTGRES_PASSWORD:${PGPASSWORD:Ansh}}}}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:merchant_ledger}}
+    username: ${SPRING_DATASOURCE_USERNAME:${DB_USERNAME:${DATABASE_USERNAME:${POSTGRES_USER:${PGUSER:postgres}}}}}
+    password: ${SPRING_DATASOURCE_PASSWORD:${DB_PASSWORD:${DATABASE_PASSWORD:${POSTGRES_PASSWORD:${PGPASSWORD:Ansh}}}}}
     driver-class-name: org.postgresql.Driver
     hikari:
       pool-name: MerchantLedgerHikariPool
