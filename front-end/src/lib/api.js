@@ -1,4 +1,16 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+const resolveApiBase = () => {
+  if (import.meta.env.VITE_API_BASE_URL) {
+    return import.meta.env.VITE_API_BASE_URL;
+  }
+
+  if (typeof window !== "undefined" && window.location.hostname !== "localhost") {
+    return window.location.origin;
+  }
+
+  return "http://localhost:8080";
+};
+
+const API_BASE = resolveApiBase();
 
 export async function apiRequest(path, options = {}) {
   const token = localStorage.getItem("token");

@@ -11,6 +11,8 @@ DB_URL=jdbc:postgresql://localhost:5432/merchant_ledger
 DB_USERNAME=postgres
 DB_PASSWORD=postgres
 JWT_SECRET=change-me-please-change
+RABBITMQ_ENABLED=false
+CACHE_TYPE=simple
 ```
 
 4. Start the API:
@@ -57,3 +59,19 @@ mvn spring-boot:run
 - Stock updates topic: `/topic/stock`
 - WebSocket requires `Authorization: Bearer <token>` header
 - Alerts topic: `/topic/alerts`
+
+## Eventing + Cache
+
+- RabbitMQ event bus (optional):
+  - Enable with `RABBITMQ_ENABLED=true`
+  - Configure broker via `RABBITMQ_HOST`, `RABBITMQ_PORT`, `RABBITMQ_USERNAME`, `RABBITMQ_PASSWORD`
+  - Exchange/queue/routing envs:
+    - `INVENTORY_EXCHANGE`
+    - `INVENTORY_QUEUE`
+    - `INVENTORY_ROUTING_KEY`
+  - Inventory movements are published to RabbitMQ and consumed for async stock topic fan-out.
+
+- Redis cache (optional):
+  - Enable with `CACHE_TYPE=redis`
+  - Configure via `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`
+  - Cached endpoints include inventory list/summary/low-stock/movements and analytics.

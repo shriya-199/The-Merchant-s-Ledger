@@ -15,6 +15,10 @@ server:
 spring:
   main:
     lazy-initialization: false
+  cache:
+    type: ${CACHE_TYPE:simple}
+    redis:
+      time-to-live: ${CACHE_TTL_SECONDS:120}s
   datasource:
     url: ${DB_URL:${DATABASE_URL:jdbc:postgresql://localhost:5432/merchant_ledger}}
     username: ${DB_USERNAME:${DATABASE_USERNAME:${POSTGRES_USER:${PGUSER:postgres}}}}
@@ -48,6 +52,22 @@ spring:
       WRITE_DATES_AS_TIMESTAMPS: false
   lifecycle:
     timeout-per-shutdown-phase: 30s
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: ${REDIS_TIMEOUT_MS:2000ms}
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+    listener:
+      simple:
+        acknowledge-mode: auto
+        concurrency: ${RABBITMQ_LISTENER_CONCURRENCY:1}
+        max-concurrency: ${RABBITMQ_LISTENER_MAX_CONCURRENCY:4}
 
 app:
   jwt:
@@ -60,6 +80,12 @@ app:
     exposeCodes: ${OTP_EXPOSE_CODES:true}
   cors:
     allowedOrigins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:3000}
+  eventing:
+    rabbit:
+      enabled: ${RABBITMQ_ENABLED:false}
+      inventoryExchange: ${INVENTORY_EXCHANGE:inventory.events.exchange}
+      inventoryQueue: ${INVENTORY_QUEUE:inventory.events.queue}
+      inventoryRoutingKey: ${INVENTORY_ROUTING_KEY:inventory.movement.recorded}
 
 management:
   endpoint:

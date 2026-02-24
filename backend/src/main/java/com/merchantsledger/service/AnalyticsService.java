@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.merchantsledger.dto.AnalyticsResponse;
@@ -27,6 +28,7 @@ public class AnalyticsService {
     this.stockItemRepository = stockItemRepository;
   }
 
+  @Cacheable(value = "analytics", key = "T(com.merchantsledger.service.TenantResolver).resolveTenantKey(#user)")
   public AnalyticsResponse build(User user) {
     String tenantKey = TenantResolver.resolveTenantKey(user);
     long total = stockMovementRepository.countByTenantKey(tenantKey);

@@ -1,0 +1,25 @@
+## Node / frontend
+front-end/node_modules/
+front-end/dist/
+front-end/.vite/
+front-end/.env.local
+front-end/.env.*.local
+
+## Java / backend
+backend/target/
+backend/.mvn/
+*.class
+*.jar
+*.war
+
+## Logs / runtime
+*.log
+*.err
+backend/run*.log
+backend/run*.err
+
+## OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

@@ -2,6 +2,7 @@ package com.merchantsledger.service;
 
 import java.math.BigDecimal;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.merchantsledger.dto.SummaryResponse;
@@ -18,6 +19,7 @@ public class SummaryService {
     this.ledgerEntryRepository = ledgerEntryRepository;
   }
 
+  @Cacheable(value = "summary", key = "'global'")
   public SummaryResponse getSummary() {
     long customers = customerRepository.count();
     long transactions = ledgerEntryRepository.count();

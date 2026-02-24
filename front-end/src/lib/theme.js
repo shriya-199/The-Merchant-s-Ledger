@@ -1,7 +1,7 @@
 const STORAGE_KEY = "auth_theme";
 const EVENT_NAME = "app-theme-change";
 
-function applyTheme(theme) {
+function applyTheme() {
   const resolved = "light";
   document.documentElement.setAttribute("data-theme", resolved);
   document.body.setAttribute("data-theme", resolved);
@@ -11,7 +11,7 @@ export function getTheme() {
   return "light";
 }
 
-export function setTheme(theme) {
+export function setTheme() {
   const resolved = "light";
   localStorage.setItem(STORAGE_KEY, resolved);
   applyTheme(resolved);

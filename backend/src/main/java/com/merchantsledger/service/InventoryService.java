@@ -6,6 +6,8 @@ import java.util.Locale;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +27,7 @@ import com.merchantsledger.entity.Warehouse;
 import com.merchantsledger.exception.BadRequestException;
 import com.merchantsledger.exception.ForbiddenException;
 import com.merchantsledger.exception.NotFoundException;
+import com.merchantsledger.event.InventoryEventPublisher;
 import com.merchantsledger.repository.ProductRepository;
 import com.merchantsledger.repository.StockItemRepository;
 import com.merchantsledger.repository.StockMovementRepository;
@@ -41,6 +44,7 @@ public class InventoryService {
   private final SimpMessagingTemplate messagingTemplate;
   private final AuditService auditService;
   private final NotificationService notificationService;
+  private final InventoryEventPublisher inventoryEventPublisher;
 
   public InventoryService(StockItemRepository stockItemRepository,
                           StockMovementRepository stockMovementRepository,
@@ -49,7 +53,8 @@ public class InventoryService {
                           WarehouseLocationRepository warehouseLocationRepository,
                           SimpMessagingTemplate messagingTemplate,
                           AuditService auditService,
-                          NotificationService notificationService) {
+                          NotificationService notificationService,
+                          InventoryEventPublisher inventoryEventPublisher) {
     this.stockItemRepository = stockItemRepository;
     this.stockMovementRepository = stockMovementRepository;
     this.warehouseRepository = warehouseRepository;
@@ -58,8 +63,12 @@ public class InventoryService {
     this.messagingTemplate = messagingTemplate;
     this.auditService = auditService;
     this.notificationService = notificationService;
+    this.inventoryEventPublisher = inventoryEventPublisher;
   }
 
+  @Cacheable(
+      value = "inventoryStock",
+      key = "T(com.merchantsledger.service.TenantResolver).resolveTenantKey(#user) + ':' + (#warehouseId == null ? 'ALL' : #warehouseId)")
   public List<StockItemResponse> listStock(User user, Long warehouseId) {
     String tenantKey = TenantResolver.resolveTenantKey(user);
     List<StockItem> items = warehouseId == null
@@ -71,6 +80,7 @@ public class InventoryService {
     return items.stream().map(this::toStockResponse).collect(Collectors.toList());
   }
 
+  @Cacheable(value = "inventoryMovements", key = "T(com.merchantsledger.service.TenantResolver).resolveTenantKey(#user)")
   public List<StockMovementResponse> listMovements(User user) {
     String tenantKey = TenantResolver.resolveTenantKey(user);
     return stockMovementRepository.findTop50ByTenantKeyOrderByCreatedAtDesc(tenantKey).stream()
@@ -79,6 +89,7 @@ public class InventoryService {
   }
 
   @Transactional
+  @CacheEvict(value = {"inventoryStock", "inventoryMovements", "inventorySummary", "inventoryLowStock", "analytics"}, allEntries = true)
   public StockMovementResponse recordMovement(User user, StockMovementRequest request) {
     String tenantKey = TenantResolver.resolveTenantKey(user);
     MovementType normalizedType = normalizeMovementType(request.getType());
@@ -169,7 +180,10 @@ public class InventoryService {
     StockMovement saved = stockMovementRepository.save(movement);
     StockMovementResponse response = toMovementResponse(saved);
 
-    messagingTemplate.convertAndSend("/topic/stock", response);
+    boolean published = inventoryEventPublisher.publishMovementRecorded(tenantKey, response);
+    if (!published) {
+      messagingTemplate.convertAndSend("/topic/stock", response);
+    }
     auditService.log(user, "STOCK_MOVEMENT", "StockMovement", String.valueOf(saved.getId()),
         saved.getType().name() + " tx=" + saved.getTransactionId());
     checkLowStockAlerts(user, product, touchedWarehouses(fromWarehouse, toWarehouse));
@@ -177,6 +191,7 @@ public class InventoryService {
     return response;
   }
 
+  @Cacheable(value = "inventorySummary", key = "T(com.merchantsledger.service.TenantResolver).resolveTenantKey(#user)")
   public InventorySummaryResponse getSummary(User user) {
     String tenantKey = TenantResolver.resolveTenantKey(user);
     long warehouses = warehouseRepository.findByTenantKey(tenantKey).size();
@@ -187,6 +202,7 @@ public class InventoryService {
     return new InventorySummaryResponse(warehouses, products, totalUnits);
   }
 
+  @Cacheable(value = "inventoryLowStock", key = "T(com.merchantsledger.service.TenantResolver).resolveTenantKey(#user)")
   public List<LowStockResponse> getLowStock(User user) {
     String tenantKey = TenantResolver.resolveTenantKey(user);
     return stockItemRepository.findByTenantKey(tenantKey).stream()
