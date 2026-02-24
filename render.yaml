@@ -15,10 +15,6 @@ services:
         fromDatabase:
           name: merchants-ledger-db
           property: connectionString
-      - key: POSTGRES_INTERNAL_URL
-        fromDatabase:
-          name: merchants-ledger-db
-          property: internalConnectionString
       - key: DB_USERNAME
         fromDatabase:
           name: merchants-ledger-db
